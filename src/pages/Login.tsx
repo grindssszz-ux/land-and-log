@@ -1,11 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import ribbonLeft from "@/assets/ribbon-left.png";
 import ribbonRight from "@/assets/ribbon-right.png";
 
 const Login = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = () => {
+    // Simulate login - in real app this would validate credentials
+    navigate('/dashboard');
+  };
   return (
     <div className="min-h-screen bg-gradient-background relative overflow-hidden flex items-center justify-center">
       {/* 3D Ribbon Decorations */}
@@ -59,7 +65,10 @@ const Login = () => {
 
         {/* Login Button */}
         <div className="flex justify-center mb-12">
-          <Button className="glow-button w-16 h-16 rounded-full p-0 relative">
+          <Button 
+            className="glow-button w-16 h-16 rounded-full p-0 relative"
+            onClick={handleLogin}
+          >
             <ArrowRight className="w-6 h-6 text-foreground relative z-10" />
           </Button>
         </div>

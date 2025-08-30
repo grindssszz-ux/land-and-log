@@ -5,6 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { 
   Play, 
   Pause, 
@@ -18,8 +20,11 @@ import {
   User,
   Mail,
   Phone,
-  GraduationCap
+  GraduationCap,
+  LogOut,
+  BarChart3
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Mock data
 const personalInfo = {
@@ -70,6 +75,7 @@ const initialTodos = {
 };
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [studyTime, setStudyTime] = useState(0); // in seconds
   const [isRunning, setIsRunning] = useState(false);
   const [todos, setTodos] = useState(initialTodos);
@@ -107,16 +113,50 @@ const Dashboard = () => {
     }));
   };
 
+  const handleLogout = () => {
+    navigate('/');
+  };
+
   const strongChapters = chapterAnalysis.filter(ch => ch.strength === 'strong');
   const weakChapters = chapterAnalysis.filter(ch => ch.strength === 'weak');
+
+  // Chart data
+  const subjectChartData = subjectProgress.map(subject => ({
+    name: subject.subject.split(' ')[0], // Shortened names for chart
+    progress: subject.progress,
+    completed: subject.completed,
+    total: subject.total
+  }));
+
+  const performanceData = chapterAnalysis.map(chapter => ({
+    name: chapter.chapter.split(' ')[0], // Shortened names
+    score: chapter.score,
+    fill: chapter.strength === 'strong' ? '#10b981' : '#ef4444'
+  }));
+
+  const COLORS = ['#10b981', '#ef4444'];
 
   return (
     <div className="min-h-screen bg-gradient-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Student Dashboard</h1>
-          <p className="text-muted-foreground">Track your academic progress and study goals</p>
+        {/* Header with Theme Toggle and Logout */}
+        <div className="flex justify-between items-center">
+          <div className="text-center flex-1">
+            <h1 className="text-4xl font-bold text-foreground mb-2">Student Dashboard</h1>
+            <p className="text-muted-foreground">Track your academic progress and study goals</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Button 
+              onClick={handleLogout}
+              variant="outline"
+              size="sm"
+              className="bg-glass backdrop-blur-md border-glass text-foreground hover:bg-glass/80"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         {/* Personal Information Card */}
@@ -220,6 +260,88 @@ const Dashboard = () => {
               <p className="text-sm text-muted-foreground">
                 Total study time today
               </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Subject Progress Chart */}
+          <Card className="bg-glass backdrop-blur-md border-glass">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <BarChart3 className="w-5 h-5" />
+                Subject Progress Overview
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={subjectChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted-foreground/20" />
+                  <XAxis 
+                    dataKey="name" 
+                    className="text-xs fill-muted-foreground"
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis 
+                    className="text-xs fill-muted-foreground"
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--background))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      color: 'hsl(var(--foreground))'
+                    }}
+                    formatter={(value, name) => [
+                      name === 'progress' ? `${value}%` : value,
+                      name === 'progress' ? 'Progress' : name === 'completed' ? 'Completed' : 'Total'
+                    ]}
+                  />
+                  <Bar dataKey="progress" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          {/* Performance Analysis Chart */}
+          <Card className="bg-glass backdrop-blur-md border-glass">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <TrendingUp className="w-5 h-5" />
+                Chapter Performance Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={performanceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted-foreground/20" />
+                  <XAxis 
+                    dataKey="name" 
+                    className="text-xs fill-muted-foreground"
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis 
+                    className="text-xs fill-muted-foreground"
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--background))', 
+                      border: '1px solid hsl(var(--border))',
+                      borderRadius: '8px',
+                      color: 'hsl(var(--foreground))'
+                    }}
+                    formatter={(value) => [`${value}%`, 'Score']}
+                  />
+                  <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+                    {performanceData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </div>
