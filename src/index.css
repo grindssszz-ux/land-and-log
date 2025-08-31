@@ -121,7 +121,9 @@
 
 @layer components {
   .glass-card {
-    @apply backdrop-blur-md bg-glass-background border border-glass-border rounded-2xl;
+    @apply backdrop-blur-md border rounded-2xl;
+    background: var(--glass-background);
+    border-color: var(--glass-border);
     box-shadow: var(--shadow-card);
   }
   
